@@ -38,20 +38,10 @@ body {
 .overlay {
 	position: fixed;
 	inset: 0;
-	/* morning feel: soft golden sun glow + light sky tint */
-	background:
-		/* warm sun glow (top-right) */
-		radial-gradient(900px 520px at 85% 8%, rgba(255,200,120,0.28), rgba(255,200,120,0.10) 42%, transparent 70%),
-		/* fresh sky light (top-left) */
-		radial-gradient(900px 520px at 12% 0%, rgba(170,225,255,0.30), rgba(170,225,255,0.10) 40%, transparent 60%),
-		/* gentle vertical blend warm->cool */
-		linear-gradient(180deg, rgba(255,220,160,0.18) 0%, rgba(210,235,255,0.12) 100%),
-		transparent;
-	/* blend for vibrancy without washout */
-	background-blend-mode: overlay, screen, multiply, normal;
-	/* fresher: slightly brighter, vivid, and moderately contrasted */
-	-webkit-backdrop-filter: brightness(1.12) saturate(1.62) contrast(1.12);
-	backdrop-filter: brightness(1.12) saturate(1.62) contrast(1.12);
+	/* color adjustment effects removed */
+	background: transparent;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
 	pointer-events: none;
 	z-index: 0;
 }
@@ -73,7 +63,7 @@ body {
 	height: auto;
 	image-rendering: pixelated;
 	display: block;
-	/* extra pop to match the stronger morning palette */
+	/* restore color effects for envelope.jpg */
 	filter: saturate(1.8) brightness(1.06) contrast(1.15) drop-shadow(0 6px 18px rgba(0,0,0,.45));
 	z-index: 1;
 	animation: bob 5s ease-in-out infinite;
@@ -121,8 +111,8 @@ body {
 	transition: opacity 220ms ease;
 }
 
-/* tighter spacing between lines */
-.letter-box p { margin: 0; }
+/* add vertical breathing room around the text */
+.letter-box p { margin: calc(2 * var(--px)) 0; }
 
 .letter-box.show {
 	opacity: 1;
@@ -220,9 +210,11 @@ body {
 		<img src="envelope.jpg" alt="Envelope" class="envelope-img" role="button" tabindex="0" aria-controls="letter" aria-expanded="false" />
 		<div class="letter-box" id="letter" hidden>
 			<button type="button" class="close-btn" aria-controls="letter" aria-label="Close letter">×</button>
+            <p> </p>
 			<p>Chúc mừng sinh nhật Ni Cô Chải Tóc - Trần Thị Cẩm Hà</p>
             <p>Chúc Hà tuổi mới nhiều sức khoẻ, hạnh phúc, bình an,</p>
             <p>mong Hà sẽ đạt được những mong ước của bản thân🌻</p>
+            <p> </p>
 		</div>
 	</main>
 	<script>
