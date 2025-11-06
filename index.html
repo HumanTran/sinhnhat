@@ -54,7 +54,7 @@ body {
 	--ink: #0c0c0c;
 	--paper: #ead7a2;       /* darker vintage paper */
 	--paper-dark: #d9c389;  /* supporting shade */
-	--measure: 32ch;        /* desired text measure before wrapping */
+	--measure: 20ch;        /* desired text measure before wrapping */
 }
 
 /* image presentation */
@@ -78,10 +78,7 @@ body {
 
 .letter-box {
 	margin-top: 1rem;
-	display: inline-grid;                 /* reserve a header row for the close button */
-	grid-template-columns: 1fr;
-	grid-auto-rows: auto;
-	row-gap: calc(2 * var(--px));
+	display: inline-grid;                 /* grid for content spacing */
 	width: fit-content;                 /* shrink to fit text */
 	max-width: min(90vw, var(--measure));/* wrap automatically around this width */
 	background:
@@ -108,12 +105,11 @@ body {
 	overflow-wrap: anywhere;           /* prevent overflow on long tokens */
 	image-rendering: pixelated;
 	position: relative;
-	overflow: hidden;            /* hold aging overlays */
+	overflow: visible;           /* allow close button to sit half outside */
 	/* appear animation baseline */
 	opacity: 0;
-	transform: translateY(8px);
 	filter: none;
-	transition: opacity 200ms steps(6, end), transform 200ms steps(6, end);
+	transition: opacity 220ms ease;
 }
 
 /* tighter spacing between lines */
@@ -121,7 +117,6 @@ body {
 
 .letter-box.show {
 	opacity: 1;
-	transform: translateY(0);
 	animation: bob 6s ease-in-out infinite;
 	transform-origin: 50% 100%;
 	will-change: transform;
@@ -129,14 +124,17 @@ body {
 
 /* close button (pixel style) */
 .close-btn {
-	justify-self: end;        /* stay at top-right inside header row */
-	align-self: start;
-	padding: calc(1.5 * var(--px)) calc(3.5 * var(--px));
+	position: absolute;       /* straddle the top edge */
+	top: 0;
+	right: calc(-2.5 * var(--px));
+	transform: translateY(-50%); /* 1/2 outside, 1/2 inside vertically */
+	/* 15% smaller */
+	padding: calc(1.5 * var(--px) * 0.85) calc(3.5 * var(--px) * 0.85);
 	background: #c94a4a; /* standout wax red */
 	color: #fff;
 	border: none;
 	cursor: pointer;
-	font: 700 16px/1 monospace;
+	font: 700 13.6px/1 monospace; /* 16px -> 13.6px (-15%) */
 	image-rendering: pixelated;
 	box-shadow:
 		0 0 0 var(--px) var(--ink),                            /* hard outline */
@@ -147,7 +145,8 @@ body {
 
 .close-btn:hover { background: #b34141; }
 .close-btn:active {
-	transform: translate(var(--px), var(--px));
+	/* keep the vertical straddle while simulating a 1px press-in */
+	transform: translate(var(--px), calc(-50% + var(--px)));
 	box-shadow:
 		0 0 0 var(--px) var(--ink),
 		inset 0 0 0 var(--px) rgba(0,0,0,0.25);
@@ -157,9 +156,9 @@ body {
 /* subtle one-time pulse when letter appears */
 .letter-box.show .close-btn { animation: pulse 680ms steps(6, end) 1; }
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.06); }
-  100% { transform: scale(1); }
+	0% { transform: translateY(-50%) scale(1); }
+	50% { transform: translateY(-50%) scale(1.06); }
+	100% { transform: translateY(-50%) scale(1); }
 }
 
 /* old paper overlays: stains + grain + vignette */
