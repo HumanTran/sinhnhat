@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<style>
+html, body {
+	height: 100%;
+	margin: 0;
+	overflow: hidden; /* disable page scrolling */
+}
+
+/* background using meo.gif placed in d:\kn\assets\meo.gif */
+body {
+	background-image: url("meo.gif");
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-color: #222; /* fallback */
+}
+
+/* centered content */
+.center {
+	height: 100vh;            /* fill viewport height */
+	box-sizing: border-box;   /* include padding inside height */
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 2rem;
+}
+
+/* overlay to increase contrast */
+.overlay {
+	position: fixed;
+	inset: 0;
+	/* brighten without washing out colors */
+	background: rgba(0,0,0,0.18);
+	-webkit-backdrop-filter: brightness(1.12) saturate(1.15) contrast(1.05);
+	backdrop-filter: brightness(1.12) saturate(1.15) contrast(1.05);
+	pointer-events: none;
+	z-index: 0;
+}
+
+/* pixel vars */
+:root {
+	--px: 4px;
+	--ink: #0c0c0c;
+	--paper: #ead7a2;       /* darker vintage paper */
+	--paper-dark: #d9c389;  /* supporting shade */
+}
+
+/* image presentation */
+
+/* Envelope image size (2x bigger than previous) */
+.envelope-img {
+	max-width: calc(min(90vw, 420px) * 0.5);
+	height: auto;
+	image-rendering: pixelated;
+	display: block;
+	filter: drop-shadow(0 6px 18px rgba(0,0,0,.4));
+	z-index: 1;
+}
+
+/* ensure [hidden] truly hides even if display set elsewhere */
+[hidden] { display: none !important; }
+
+.letter-box {
+	margin-top: 1rem;
+	display: inline-block;
+	width: fit-content;         /* shrink to fit text */
+	max-width: 90vw;            /* but don’t exceed viewport width */
+	background:
+		repeating-linear-gradient(to bottom,
+			rgba(0,0,0,0.09) 0 calc(1 * var(--px)),
+			transparent calc(1 * var(--px)) calc(4 * var(--px))
+		),
+		var(--paper);
+	color: #1e1e1e;
+	padding: calc(5 * var(--px)) calc(3 * var(--px)) calc(3 * var(--px)); /* extra top space for close button */
+	border-radius: 0;
+	box-shadow:
+		0 0 0 var(--px) var(--ink),
+		calc(var(--px)) calc(var(--px)) 0 0 var(--ink),
+		calc(2 * var(--px)) calc(2 * var(--px)) 0 0 rgba(12,12,12,0.45),
+		inset 0 0 0 calc(1 * var(--px)) rgba(0,0,0,0.07),           /* inner edge darken */
+		inset 0 20px 30px -20px rgba(60,40,0,0.25),                 /* top vignette */
+		inset 0 -20px 30px -20px rgba(60,40,0,0.2);                 /* bottom vignette */
+	font: 600 20.8px/0.8 "Courier New", monospace; /* +30% font size, keep tight line height */
+	text-align: left;            /* left align text */
+	letter-spacing: .2px;
+	white-space: pre-line;
+	image-rendering: pixelated;
+	position: relative;
+	overflow: hidden;            /* hold aging overlays */
+	/* appear animation baseline */
+	opacity: 0;
+	transform: translateY(8px);
+	filter: none;
+	transition: opacity 200ms steps(6, end), transform 200ms steps(6, end);
+}
+
+/* tighter spacing between lines */
+.letter-box p { margin: 0; }
+
+.letter-box.show {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* close button (pixel style) */
+.close-btn {
+	position: absolute;
+	top: calc(2 * var(--px));
+	right: calc(2 * var(--px));
+	padding: calc(1.5 * var(--px)) calc(3.5 * var(--px));
+	background: #c94a4a; /* standout wax red */
+	color: #fff;
+	border: none;
+	cursor: pointer;
+	font: 700 16px/1 monospace;
+	image-rendering: pixelated;
+	box-shadow:
+		0 0 0 var(--px) var(--ink),                            /* hard outline */
+		calc(var(--px)) calc(var(--px)) 0 0 var(--ink),        /* pixel drop */
+		inset 0 0 0 var(--px) rgba(255,255,255,0.35);          /* inner highlight */
+	z-index: 2;
+}
+
+.close-btn:hover { background: #b34141; }
+.close-btn:active {
+	transform: translate(var(--px), var(--px));
+	box-shadow:
+		0 0 0 var(--px) var(--ink),
+		inset 0 0 0 var(--px) rgba(0,0,0,0.25);
+}
+.close-btn:focus-visible { outline: 3px solid rgba(255,255,255,0.85); outline-offset: 2px; }
+
+/* subtle one-time pulse when letter appears */
+.letter-box.show .close-btn { animation: pulse 680ms steps(6, end) 1; }
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* old paper overlays: stains + grain + vignette */
+.letter-box::before,
+.letter-box::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.letter-box::before {
+	background:
+		radial-gradient(120% 90% at 0% 0%, rgba(50,30,0,.12), transparent 40%),
+		radial-gradient(120% 90% at 100% 0%, rgba(50,30,0,.10), transparent 40%),
+		radial-gradient(140% 90% at 50% 120%, rgba(50,30,0,.14), transparent 55%),
+		repeating-linear-gradient(0deg, rgba(0,0,0,.02) 0 1px, transparent 1px 2px),
+		repeating-linear-gradient(90deg, rgba(0,0,0,.015) 0 1px, transparent 1px 2px);
+	mix-blend-mode: multiply;
+	opacity: .7;
+}
+
+.letter-box::after {
+	background:
+		radial-gradient(100px 60px at 18% 32%, rgba(90,60,0,.14), rgba(90,60,0,0) 65%),
+		radial-gradient(110px 70px at 82% 68%, rgba(90,60,0,.12), rgba(90,60,0,0) 70%),
+		linear-gradient(to bottom, transparent 58%, rgba(60,40,0,.10) 59%, transparent 61%); /* subtle fold */
+	mix-blend-mode: multiply;
+	opacity: .6;
+}
+
+	</style>
+</head>
+<body>
+	<div class="overlay" aria-hidden="true"></div>
+	<main class="center">
+		<img src="envelope.jpg" alt="Envelope" class="envelope-img" role="button" tabindex="0" aria-controls="letter" aria-expanded="false" />
+		<div class="letter-box" id="letter" hidden>
+			<button type="button" class="close-btn" aria-controls="letter" aria-label="Close letter">×</button>
+			<p>Chúc bạn tui tuổi mới thật</p>
+			<p>nhiều sức khỏe, ngày càng</p>
+			<p>xinh đẹp và sớm đạt được</p>
+			<p>những gì mình mong muốn nhé.</p>
+		</div>
+	</main>
+	<script>
+	(function(){
+		const img = document.querySelector('.envelope-img');
+		const box = document.getElementById('letter');
+		const closeBtn = document.querySelector('.close-btn');
+		if(!img || !box || !closeBtn) return;
+
+		function showLetter(){
+			if(!box.hasAttribute('hidden')) return;
+			box.removeAttribute('hidden');
+			img.setAttribute('aria-expanded','true');
+			img.setAttribute('hidden','');
+			box.setAttribute('tabindex','-1');
+			requestAnimationFrame(() => {
+				box.classList.add('show');
+				try { box.focus({ preventScroll: true }); } catch(_) { box.focus(); }
+			});
+		}
+
+		function showEnvelope(){
+			if(box.hasAttribute('hidden')) return;
+			box.classList.remove('show');
+			box.setAttribute('hidden','');
+			img.removeAttribute('hidden');
+			img.setAttribute('aria-expanded','false');
+			try { img.focus({ preventScroll: true }); } catch(_) { img.focus(); }
+		}
+
+		function onImgKey(e){
+			if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); showLetter(); }
+		}
+
+		function onBoxKey(e){
+			if(e.key === 'Escape'){ e.preventDefault(); showEnvelope(); }
+		}
+
+		img.addEventListener('click', showLetter);
+		img.addEventListener('keydown', onImgKey);
+		closeBtn.addEventListener('click', showEnvelope);
+		box.addEventListener('keydown', onBoxKey);
+	})();
+	</script>
+</body>
+</html>
