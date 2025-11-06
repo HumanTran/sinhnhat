@@ -54,6 +54,7 @@ body {
 	--ink: #0c0c0c;
 	--paper: #ead7a2;       /* darker vintage paper */
 	--paper-dark: #d9c389;  /* supporting shade */
+	--measure: 32ch;        /* desired text measure before wrapping */
 }
 
 /* image presentation */
@@ -77,9 +78,12 @@ body {
 
 .letter-box {
 	margin-top: 1rem;
-	display: inline-block;
-	width: fit-content;         /* shrink to fit text */
-	max-width: 90vw;            /* but don’t exceed viewport width */
+	display: inline-grid;                 /* reserve a header row for the close button */
+	grid-template-columns: 1fr;
+	grid-auto-rows: auto;
+	row-gap: calc(2 * var(--px));
+	width: fit-content;                 /* shrink to fit text */
+	max-width: min(90vw, var(--measure));/* wrap automatically around this width */
 	background:
 		repeating-linear-gradient(to bottom,
 			rgba(0,0,0,0.09) 0 calc(1 * var(--px)),
@@ -87,7 +91,7 @@ body {
 		),
 		var(--paper);
 	color: #1e1e1e;
-	padding: calc(5 * var(--px)) calc(3 * var(--px)) calc(3 * var(--px)); /* extra top space for close button */
+	padding: calc(3 * var(--px));
 	border-radius: 0;
 	box-shadow:
 		0 0 0 var(--px) var(--ink),
@@ -97,10 +101,11 @@ body {
 		inset 0 20px 30px -20px rgba(60,40,0,0.25),                 /* top vignette */
 		inset 0 -20px 30px -20px rgba(60,40,0,0.2);                 /* bottom vignette */
 	/* Vietnamese-friendly font stack; tighter line-height per request */
-	font: 700 18px/0.6 "Be Vietnam Pro", "Noto Sans", Roboto, "Segoe UI", Arial, sans-serif;
+	font: 700 18px/1 "Be Vietnam Pro", "Noto Sans", Roboto, "Segoe UI", Arial, sans-serif;
 	text-align: left;            /* left align text */
 	letter-spacing: .2px;
-	white-space: pre-line;
+	white-space: normal;               /* let browser wrap automatically */
+	overflow-wrap: anywhere;           /* prevent overflow on long tokens */
 	image-rendering: pixelated;
 	position: relative;
 	overflow: hidden;            /* hold aging overlays */
@@ -124,9 +129,8 @@ body {
 
 /* close button (pixel style) */
 .close-btn {
-	position: absolute;
-	top: calc(2 * var(--px));
-	right: calc(2 * var(--px));
+	justify-self: end;        /* stay at top-right inside header row */
+	align-self: start;
 	padding: calc(1.5 * var(--px)) calc(3.5 * var(--px));
 	background: #c94a4a; /* standout wax red */
 	color: #fff;
@@ -138,7 +142,7 @@ body {
 		0 0 0 var(--px) var(--ink),                            /* hard outline */
 		calc(var(--px)) calc(var(--px)) 0 0 var(--ink),        /* pixel drop */
 		inset 0 0 0 var(--px) rgba(255,255,255,0.35);          /* inner highlight */
-	z-index: 2;
+	z-index: 3;               /* sit above paper overlays */
 }
 
 .close-btn:hover { background: #b34141; }
@@ -208,10 +212,7 @@ body {
 		<img src="envelope.jpg" alt="Envelope" class="envelope-img" role="button" tabindex="0" aria-controls="letter" aria-expanded="false" />
 		<div class="letter-box" id="letter" hidden>
 			<button type="button" class="close-btn" aria-controls="letter" aria-label="Close letter">×</button>
-			<p>Chúc bạn tui tuổi mới thật</p>
-			<p>nhiều sức khỏe, ngày càng</p>
-			<p>xinh đẹp và sớm đạt được</p>
-			<p>những gì mình mong muốn nhé.</p>
+			<p>Chúc bạn tui tuổi mới thật nhiều sức khỏe, ngày càng xinh đẹp và sớm đạt được những gì mình mong muốn nhé.</p>
 		</div>
 	</main>
 	<script>
