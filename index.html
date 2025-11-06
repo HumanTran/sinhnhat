@@ -2,6 +2,10 @@
 <html>
 <head>
 	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<!-- Vietnamese-friendly webfont (with local fallbacks) -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700&display=swap" rel="stylesheet">
 	<style>
 html, body {
 	height: 100%;
@@ -60,6 +64,9 @@ body {
 	display: block;
 	filter: drop-shadow(0 6px 18px rgba(0,0,0,.4));
 	z-index: 1;
+	animation: bob 5s ease-in-out infinite;
+	transform-origin: 50% 100%;
+	will-change: transform;
 }
 
 /* ensure [hidden] truly hides even if display set elsewhere */
@@ -86,7 +93,8 @@ body {
 		inset 0 0 0 calc(1 * var(--px)) rgba(0,0,0,0.07),           /* inner edge darken */
 		inset 0 20px 30px -20px rgba(60,40,0,0.25),                 /* top vignette */
 		inset 0 -20px 30px -20px rgba(60,40,0,0.2);                 /* bottom vignette */
-	font: 600 20.8px/0.8 "Courier New", monospace; /* +30% font size, keep tight line height */
+	/* Vietnamese-friendly font stack; slightly higher line-height to avoid diacritic clipping on mobile */
+	font: 700 18px/1.15 "Be Vietnam Pro", "Noto Sans", Roboto, "Segoe UI", Arial, sans-serif;
 	text-align: left;            /* left align text */
 	letter-spacing: .2px;
 	white-space: pre-line;
@@ -106,6 +114,9 @@ body {
 .letter-box.show {
 	opacity: 1;
 	transform: translateY(0);
+	animation: bob 6s ease-in-out infinite;
+	transform-origin: 50% 100%;
+	will-change: transform;
 }
 
 /* close button (pixel style) */
@@ -151,6 +162,19 @@ body {
 	position: absolute;
 	inset: 0;
 	pointer-events: none;
+}
+
+/* gentle bobbing animation */
+@keyframes bob {
+	0%   { transform: translateY(0) rotate(0deg); }
+	50%  { transform: translateY(-4px) rotate(-0.3deg); }
+	100% { transform: translateY(0) rotate(0.3deg); }
+}
+
+/* respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+	.envelope-img,
+	.letter-box.show { animation: none !important; }
 }
 
 .letter-box::before {
