@@ -92,7 +92,7 @@ body {
 	height: 100vh;
 	display: flex;
 	will-change: transform;
-	transform: translate3d(-200vw, 0, 0); /* start so content moves left->right */
+	transform: translate3d(-300vw, 0, 0); /* start so content moves left->right */
 	backface-visibility: hidden;
 	animation: trackScroll calc(var(--cloud-duration, 76.8s) * 2) linear infinite;
 }
@@ -100,7 +100,7 @@ body {
 	flex: 0 0 100vw;
 	width: 100vw;
 	height: 100vh;
-	object-fit: cover;
+	object-fit: contain;
 	object-position: center;
 	image-rendering: auto;
 }
