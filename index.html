@@ -15,7 +15,7 @@ html, body {
 
 /* background using meo.gif placed in d:\kn\assets\meo.gif */
 body {
-	background-image: url("meo.gif");
+	background-image: url("meo.jpg");
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -46,13 +46,107 @@ body {
 	z-index: 0;
 }
 
+/* decorative image above background, behind content */
+.bg-layer {
+	position: fixed;
+	inset: 0;                  /* cover full viewport */
+	width: 100%;
+	height: 100%;
+	object-fit: cover;         /* like background-size: cover */
+	object-position: center;   /* like background-position: center */
+	pointer-events: none;
+	z-index: 0;                /* above .overlay, below main content */
+	/* smooth rendering for animation */
+	image-rendering: auto;
+}
+
+/* slow horizontal drift for decorative layers */
+.cloud {
+	will-change: transform;
+	opacity: 1;
+	transform: translateZ(0);         /* GPU hint */
+	backface-visibility: hidden;      /* reduce flicker */
+}
+/* legacy individual cloud animations removed in favor of track scrolling */
+
+/* seamless tiling: cloud1 starts at 0%, cloud2 starts at -100% and follows */
+@keyframes drift0 {
+	0%   { transform: translate3d(0%, 0, 0); }
+	100% { transform: translate3d(100%, 0, 0); }
+}
+@keyframes driftNeg100 {
+	0%   { transform: translate3d(-100%, 0, 0); }
+	100% { transform: translate3d(0%, 0, 0); }
+}
+
+/* scrolling container ensures images never overlap while moving */
+.bg-scroll {
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 0; /* above overlay, below content */
+	overflow: hidden; /* mask track edges */
+}
+.bg-track {
+	width: 300vw; /* may1 | may2 | may1 clone */
+	height: 100vh;
+	display: flex;
+	will-change: transform;
+	transform: translate3d(-200vw, 0, 0); /* start so content moves left->right */
+	backface-visibility: hidden;
+	animation: trackScroll calc(var(--cloud-duration, 76.8s) * 2) linear infinite;
+}
+.bg-item {
+	flex: 0 0 100vw;
+	width: 100vw;
+	height: 100vh;
+	object-fit: cover;
+	object-position: center;
+	image-rendering: auto;
+}
+
+/* star layer placed above background/cloud track but below main content */
+.star-layer {
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 1; /* clouds z-index:0, content sits above */
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+	image-rendering: auto;
+	/* subtle twinkle */
+	animation: twinkle 20s ease-in-out infinite;
+	will-change: opacity;
+}
+
+/* irregular twinkle to avoid rhythmic blinking */
+@keyframes twinkle {
+	0%   { opacity: 0; }
+	8%   { opacity: 1; }
+	14%  { opacity: 0; }
+	22%  { opacity: 1; }
+	38%  { opacity: 0; }
+	50%  { opacity: 1; }
+	63%  { opacity: 0; }
+	74%  { opacity: 1; }
+	86%  { opacity: 0; }
+	100% { opacity: 1; }
+}
+
+@keyframes trackScroll {
+	0%   { transform: translate3d(-200vw, 0, 0); }
+	100% { transform: translate3d(0, 0, 0); } /* sweep rightwards across two slides */
+}
+
 /* pixel vars */
 :root {
 	--px: 4px;
 	--ink: #0c0c0c;
-	--paper: #ead7a2;       /* darker vintage paper */
+	--paper: #efdeaf;       /* slightly brighter, cheerier paper */
 	--paper-dark: #d9c389;  /* supporting shade */
-	      /* desired text measure before wrapping */
+	--measure: 20ch;        /* desired text measure before wrapping (restored) */
 }
 
 /* image presentation */
@@ -63,7 +157,7 @@ body {
 	height: auto;
 	image-rendering: pixelated;
 	display: block;
-	/* softer tones per request */
+	/* keep envelope effects: gentle vibrancy + soft shadow */
 	filter: saturate(1.22) brightness(1.02) contrast(1.06) drop-shadow(0 6px 18px rgba(0,0,0,.36));
 	z-index: 1;
 	animation: bob 5s ease-in-out infinite;
@@ -81,20 +175,20 @@ body {
 	max-width: min(90vw, var(--measure));/* wrap automatically around this width */
 	background:
 		repeating-linear-gradient(to bottom,
-			rgba(0,0,0,0.09) 0 calc(1 * var(--px)),
+			rgba(0,0,0,0.06) 0 calc(1 * var(--px)),
 			transparent calc(1 * var(--px)) calc(4 * var(--px))
 		),
 		var(--paper);
-	color: #1e1e1e;
+	color: #141414;
 	padding: calc(3 * var(--px));
 	border-radius: 0;
 	box-shadow:
 		0 0 0 var(--px) var(--ink),
 		calc(var(--px)) calc(var(--px)) 0 0 var(--ink),
-		calc(2 * var(--px)) calc(2 * var(--px)) 0 0 rgba(12,12,12,0.45),
-		inset 0 0 0 calc(1 * var(--px)) rgba(0,0,0,0.07),           /* inner edge darken */
-		inset 0 20px 30px -20px rgba(60,40,0,0.25),                 /* top vignette */
-		inset 0 -20px 30px -20px rgba(60,40,0,0.2);                 /* bottom vignette */
+		calc(2 * var(--px)) calc(2 * var(--px)) 0 0 rgba(12,12,12,0.34),
+		inset 0 0 0 calc(1 * var(--px)) rgba(0,0,0,0.05),           /* inner edge darken */
+		inset 0 20px 30px -20px rgba(60,40,0,0.18),                 /* top vignette (lighter) */
+		inset 0 -20px 30px -20px rgba(60,40,0,0.14);                /* bottom vignette (lighter) */
 	/* Vietnamese-friendly font stack; tighter line-height per request */
 	font: 400 18px/1 "Be Vietnam Pro", "Noto Sans", Roboto, "Segoe UI", Arial, sans-serif;
 	line-height: 20px; /* +2px */
@@ -190,7 +284,7 @@ body {
 		repeating-linear-gradient(0deg, rgba(0,0,0,.02) 0 1px, transparent 1px 2px),
 		repeating-linear-gradient(90deg, rgba(0,0,0,.015) 0 1px, transparent 1px 2px);
 	mix-blend-mode: multiply;
-	opacity: .7;
+	opacity: .45; /* lighter to avoid gloomy feel */
 }
 
 .letter-box::after {
@@ -199,13 +293,21 @@ body {
 		radial-gradient(110px 70px at 82% 68%, rgba(90,60,0,.12), rgba(90,60,0,0) 70%),
 		linear-gradient(to bottom, transparent 58%, rgba(60,40,0,.10) 59%, transparent 61%); /* subtle fold */
 	mix-blend-mode: multiply;
-	opacity: .6;
+	opacity: .35; /* lighter */
 }
 
 	</style>
 </head>
 <body>
 	<div class="overlay" aria-hidden="true"></div>
+	<div class="bg-scroll" aria-hidden="true">
+		<div class="bg-track">
+			<img src="may1.png" alt="" class="bg-item" aria-hidden="true" />
+			<img src="may2.png" alt="" class="bg-item" aria-hidden="true" />
+			<img src="may1.png" alt="" class="bg-item" aria-hidden="true" />
+		</div>
+	</div>
+	<img src="star.png" alt="" class="star-layer" aria-hidden="true" />
 	<main class="center">
 		<img src="envelope.jpg" alt="Envelope" class="envelope-img" role="button" tabindex="0" aria-controls="letter" aria-expanded="false" />
 		<div class="letter-box" id="letter" hidden>
@@ -256,6 +358,8 @@ body {
 		img.addEventListener('keydown', onImgKey);
 		closeBtn.addEventListener('click', showEnvelope);
 		box.addEventListener('keydown', onBoxKey);
+
+
 	})();
 	</script>
 </body>
